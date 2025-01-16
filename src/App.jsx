@@ -3,6 +3,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
 import './App.css'
+import SystemToastContainer from './components/SystemToastContainer';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path='/home' index element={<HomePage />}></Route>
         </Routes>
       </BrowserRouter>
+      <SystemToastContainer />
     </div>
   )
 }

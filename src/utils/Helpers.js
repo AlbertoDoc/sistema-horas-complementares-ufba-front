@@ -10,3 +10,24 @@ export function validateUFBAEmail(email) {
 export function isOnlyNumbers(input) {
   return /^[0-9]+$/.test(input);
 }
+
+export function processErrorResponse(response) {
+  if (!response || typeof response !== 'object' || !response.data) {
+      return "Invalid response format.";
+  }
+
+  const { status, message, data } = response.data;
+
+  if (status !== "fail") {
+      return "No error to process.";
+  }
+
+  let errorDetails = "";
+  if (data && typeof data === "object") {
+      errorDetails = Object.entries(data)
+          .map(([field, error]) => `${field}: ${error}`)
+          .join("; ");
+  }
+
+  return `${message}${errorDetails ? ". Details: " + errorDetails : ""}`;
+}

@@ -1,10 +1,14 @@
 import { MenuItem, TextField } from "@mui/material";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styled from 'styled-components';
 import { isOnlyNumbers, validateEmail, validateUFBAEmail } from '../utils/Helpers'
+import { register } from "../services/register";
+import { showErrorToast, showSuccessToast } from "../utils/Toasts";
 
 export default function RegisterPage() {
+  // TODO implementar endpoint get de cursos
+  // enviar tipo usuario e os campos de curso ao cadastrar coordenador
   const [name, setName] = useState('');
   const [nameError, setNameError] = useState('');
 
@@ -28,6 +32,8 @@ export default function RegisterPage() {
 
   const [confirmPassword, setConfirmPassword] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
+
+  const navigate = useNavigate();
 
   const roles = [
     {
@@ -58,8 +64,13 @@ export default function RegisterPage() {
 
     let valid = true;
 
-    if (name === '') {
+    let trimName = name.trim()
+
+    if (trimName === '') {
       setNameError('O nome não pode ser vazio.');
+      valid = false;
+    } else if (trimName.split(' ').length === 1) {
+      setNameError('O nome deve conter pelo menos um sobrenome.')
       valid = false;
     } else {
       setNameError('');
@@ -134,7 +145,20 @@ export default function RegisterPage() {
     }
 
     if (valid) {
-      // TODO implementar integração com o endpoint de cadastro
+      let splitName = name.split(' ')
+      let firstName = splitName[0]
+      let lastName = splitName.slice(1).join(" ");
+      console.log("firstName: " + firstName)
+      console.log("lastName: " + lastName)
+      register(firstName, lastName, email, password, confirmPassword)
+      .then((response) => {
+        navigate('/')
+        showSuccessToast('Cadastro concluído com sucesso. Faça o login para entrar na plataforma.')
+      })
+      .catch((error) => {
+        console.log(error)
+        showErrorToast(error)
+      })
     }
   }
 
@@ -146,9 +170,9 @@ export default function RegisterPage() {
           <TextField
             id="outlined-helperText"
             style={{paddingBottom: '10px'}}
-            label="Nome"
+            label="Nome completo"
             value={name}
-            error={nameError}
+            error={nameError !== ''}
             helperText={nameError}
             onChange={(event) => setName(event.target.value)}
           />
@@ -159,7 +183,7 @@ export default function RegisterPage() {
             label="E-mail"
             helperText={emailError ? emailError : "Utilize o seu e-mail institucional"}
             value={email}
-            error={emailError}
+            error={emailError !== ''}
             onChange={(event) => setEmail(event.target.value)}
           />
 
@@ -168,7 +192,7 @@ export default function RegisterPage() {
             style={{paddingBottom: '10px'}}
             label="Número de matrícula"
             value={registrationNumber}
-            error={registrationNumberError}
+            error={registrationNumberError !== ''}
             helperText={registrationNumberError}
             onChange={(event) => setRegistrationNumber(event.target.value)}
           />
@@ -179,7 +203,7 @@ export default function RegisterPage() {
             select
             label="Perfil"
             defaultValue="Student"
-            error={selectedRoleError}
+            error={selectedRoleError !== ''}
             helperText={selectedRoleError}
             onChange={(event) => setSelectedRole(event.target.value)}
           >
@@ -198,7 +222,7 @@ export default function RegisterPage() {
               style={{paddingBottom: '10px'}}
               label="Nome do curso"
               value={courseName}
-              error={courseNameError}
+              error={courseNameError !== ''}
               helperText={courseNameError}
               onChange={(event) => setCourseName(event.target.value)}
             />
@@ -211,7 +235,7 @@ export default function RegisterPage() {
             select
             label="Curso"
             defaultValue="Ciência da Computação" // TODO implementar endpoint GET de cursos
-            error={selectedCourseError}
+            error={selectedCourseError !== ''}
             helperText={selectedCourseError}
             onChange={(event) => setSelectedCourse(event.target.value)}
           >
@@ -232,7 +256,7 @@ export default function RegisterPage() {
             type="password"
             autoComplete="current-password"
             value={password}
-            error={passwordError}
+            error={passwordError !== ''}
             helperText={passwordError}
             onChange={(event) => setPassword(event.target.value)}
           />
@@ -244,7 +268,7 @@ export default function RegisterPage() {
             type="password"
             autoComplete="current-password"
             value={confirmPassword}
-            error={confirmPasswordError}
+            error={confirmPasswordError !== ''}
             helperText={confirmPasswordError}
             onChange={(event) => setConfirmPassword(event.target.value)}
           />
