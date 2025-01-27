@@ -31,3 +31,13 @@ export function processErrorResponse(response) {
 
   return `${message}${errorDetails ? ". Details: " + errorDetails : ""}`;
 }
+
+/**
+ * Verifica se uma string contém apenas números.
+ * @param {string} input - A string a ser verificada.
+ * @returns {boolean} - Retorna `true` se a string contém apenas números, caso contrário `false`.
+ */
+export function isNumeric(input) {
+  const regex = /^\d+$/;
+  return regex.test(input);
+}

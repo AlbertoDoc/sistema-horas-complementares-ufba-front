@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from 'styled-components';
-import { validateEmail } from '../utils/Helpers'
+import { validateEmail, validateUFBAEmail } from '../utils/Helpers'
 import { TextField } from "@mui/material";
 import { login } from "../services/login";
 import { showErrorToast } from "../utils/Toasts";
@@ -26,6 +26,9 @@ export default function LoginPage() {
       valid = false;
     } else if (!validateEmail(email)) {
       setEmailError('E-mail inválido.');
+      valid = false
+    } else if (!validateUFBAEmail(email)) {
+      setEmailError('Utilize o email @ufba.br.');
       valid = false
     } else {
       setEmailError('');

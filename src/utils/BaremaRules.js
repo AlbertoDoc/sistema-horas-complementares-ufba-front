@@ -43,7 +43,6 @@ export function isActivityHoursLessOrEqualZero(activity) {
 }
 
 export function isActivitiesHoursGreaterThanSubCategoriesMaxHours(subCategory) {
-  console.log(subCategory)
   let subCategoryMaxHour = Number(subCategory.maximoHoras)
   var hourCounter = 0
 

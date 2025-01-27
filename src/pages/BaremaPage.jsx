@@ -6,6 +6,8 @@ import DeleteIcon from "@mui/icons-material/Delete"
 import {v4 as uuidv4} from 'uuid';
 import { isActivitiesHoursGreaterThanSubCategoriesMaxHours, isActivityHoursLessOrEqualZero, isActivityNameEmpty, isBaremaEmpty, isCategoryNameEmpty, isSubCategoryMaxHoursLessOrEqualZero, isSubCategoryNameEmpty } from "../utils/BaremaRules"
 import { showErrorToast } from "../utils/Toasts"
+import { isNumeric } from "../utils/Helpers"
+import CoordinatorTopBar from "../components/CoordinatorTopBar"
 
 function BaremaForm() {
   const [categories, setCategories] = useState([
@@ -17,7 +19,7 @@ function BaremaForm() {
           id: uuidv4(),
           name: "",
           maximoHoras: 0,
-          activities: [{ id: uuidv4(), name: "", cargaHoraria: 0, periodo: "" }],
+          activities: [{ id: uuidv4(), name: "", cargaHoraria: 0, periodo: "hour" }],
         },
       ],
     },
@@ -105,7 +107,7 @@ function BaremaForm() {
             id: uuidv4(),
             name: "",
             maximoHoras: 0,
-            activities: [{ id: uuidv4(), name: "", cargaHoraria: 0, periodo: "" }],
+            activities: [{ id: uuidv4(), name: "", cargaHoraria: 0, periodo: "hour" }],
           },
         ],
       },
@@ -123,7 +125,7 @@ function BaremaForm() {
       id: uuidv4(),
       name: "",
       maximoHoras: "",
-      activities: [{ name: "", cargaHoraria: 0, periodo: "" }],
+      activities: [{ name: "", cargaHoraria: 0, periodo: "hour" }],
     })
     setCategories(newCategories)
   }
@@ -142,7 +144,7 @@ function BaremaForm() {
       id: uuidv4(),
       name: "",
       cargaHoraria: 0,
-      comprovacao: "",
+      periodo: "hour",
     })
     setCategories(newCategories)
   }
@@ -214,87 +216,46 @@ function BaremaForm() {
   }, [error])
 
   return (
-    <Container maxWidth="xl">
-      <FormContainer elevation={0}>
-        <form onSubmit={handleSubmit}>
-          <Title variant="h4" gutterBottom>
-            Cadastro de Barema - Ciência da Computação
-          </Title>
+    <>
+      <CoordinatorTopBar userName={"Usuário teste"} />
+      <Container maxWidth="xl">
+        <FormContainer elevation={0}>
+          <form onSubmit={handleSubmit}>
+            <Title variant="h4" gutterBottom>
+              Cadastro de Barema - Ciência da Computação
+            </Title>
 
-          {categories.map((category, categoryIndex) => (
-            <div key={categoryIndex}>
-              <Grid container spacing={2} alignItems="center">
-                <Grid item xs>
-                  <TextField
-                    fullWidth
-                    label={`Categoria ${categoryIndex + 1}`}
-                    value={category.name}
-                    onChange={(e) => handleCategoryChange(categoryIndex, e.target.value)}
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item>
-                  <IconButton onClick={() => removeCategory(categoryIndex)} aria-label="Remover categoria">
-                    <DeleteIcon />
-                  </IconButton>
-                </Grid>
-              </Grid>
-
-              {category.subcategories.map((subcategory, subcategoryIndex) => (
-                <div key={subcategoryIndex}>
-                  <Grid container spacing={3} style={{ marginTop: "10px" }}>
-                    <Grid item xs={12} sm={5}>
-                      <TextField
-                        fullWidth
-                        label="SubCategoria"
-                        value={subcategory.name}
-                        onChange={(e) =>
-                          handleSubcategoryChange(categoryIndex, subcategoryIndex, "name", e.target.value)
-                        }
-                        placeholder="Nome da SubCategoria..."
-                        variant="outlined"
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={5}>
-                      <TextField
-                        type="number"
-                        fullWidth
-                        label="Máximo de Horas"
-                        value={subcategory.maximoHoras}
-                        onChange={(e) =>
-                          handleSubcategoryChange(categoryIndex, subcategoryIndex, "maximoHoras", e.target.value)
-                        }
-                        placeholder="Horas da SubCategoria..."
-                        variant="outlined"
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={2}>
-                      <IconButton
-                        onClick={() => removeSubcategory(categoryIndex, subcategoryIndex)}
-                        aria-label="Remover subcategoria"
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Grid>
+            {categories.map((category, categoryIndex) => (
+              <div key={categoryIndex}>
+                <Grid container spacing={2} alignItems="center">
+                  <Grid item xs>
+                    <TextField
+                      fullWidth
+                      label={`Categoria ${categoryIndex + 1}`}
+                      value={category.name}
+                      onChange={(e) => handleCategoryChange(categoryIndex, e.target.value)}
+                      variant="outlined"
+                    />
                   </Grid>
+                  <Grid item>
+                    <IconButton onClick={() => removeCategory(categoryIndex)} aria-label="Remover categoria">
+                      <DeleteIcon />
+                    </IconButton>
+                  </Grid>
+                </Grid>
 
-                  {subcategory.activities.map((activity, activityIndex) => (
-                    <Grid container spacing={3} key={activityIndex} style={{ marginTop: "10px", marginLeft: "20px" }}>
+                {category.subcategories.map((subcategory, subcategoryIndex) => (
+                  <div key={subcategoryIndex}>
+                    <Grid container spacing={3} style={{ marginTop: "10px" }}>
                       <Grid item xs={12} sm={5}>
                         <TextField
                           fullWidth
-                          label="Nome da Atividade"
-                          value={activity.name}
+                          label="SubCategoria"
+                          value={subcategory.name}
                           onChange={(e) =>
-                            handleActivityChange(
-                              categoryIndex,
-                              subcategoryIndex,
-                              activityIndex,
-                              "name",
-                              e.target.value,
-                            )
+                            handleSubcategoryChange(categoryIndex, subcategoryIndex, "name", e.target.value)
                           }
-                          placeholder="Nome da Atividade..."
+                          placeholder="Nome da SubCategoria..."
                           variant="outlined"
                         />
                       </Grid>
@@ -302,84 +263,146 @@ function BaremaForm() {
                         <TextField
                           type="number"
                           fullWidth
-                          label="Carga Horária Máxima Permitida"
-                          value={activity.cargaHoraria}
+                          label="Máximo de Horas"
+                          value={subcategory.maximoHoras}
                           onChange={(e) =>
-                            handleActivityChange(
-                              categoryIndex,
-                              subcategoryIndex,
-                              activityIndex,
-                              "cargaHoraria",
-                              e.target.value,
-                            )
+                            handleSubcategoryChange(categoryIndex, subcategoryIndex, "maximoHoras", e.target.value)
                           }
-                          placeholder="Carga horária..."
+                          placeholder="Horas da SubCategoria..."
                           variant="outlined"
+                          onKeyDown={(e) => {
+                            if (!isNumeric(e.key)) {
+                              e.preventDefault()
+                            }
+                          }}
                         />
                       </Grid>
                       <Grid item xs={12} sm={2}>
                         <IconButton
-                          onClick={() => removeActivity(categoryIndex, subcategoryIndex, activityIndex)}
-                          aria-label="Remover atividade"
+                          onClick={() => removeSubcategory(categoryIndex, subcategoryIndex)}
+                          aria-label="Remover subcategoria"
                         >
                           <DeleteIcon />
                         </IconButton>
                       </Grid>
-                      <Grid item xs={12}>
-                        <TextField
-                          id="outlined-select-currency"
-                          style={{paddingBottom: '10px'}}
-                          select
-                          label="Período"
-                          defaultValue="hour"
-                          onChange={(event) => {/* TODO implementar mudança de periodo */}}
-                        >
-                          {
-                            periods.map((option) => (
-                              <MenuItem key={option.value} value={option.value}>
-                                {option.label}
-                              </MenuItem>
-                            ))
-                          }
-                        </TextField>
-                      </Grid>
                     </Grid>
-                  ))}
 
-                  <Button
-                    startIcon={<AddIcon />}
-                    onClick={() => addActivity(categoryIndex, subcategoryIndex)}
-                    style={{ marginTop: "10px", marginLeft: "20px" }}
-                  >
-                    Adicionar Atividade
-                  </Button>
-                </div>
-              ))}
+                    {subcategory.activities.map((activity, activityIndex) => (
+                      <Grid container spacing={3} key={activityIndex} style={{ marginTop: "10px", marginLeft: "20px" }}>
+                        <Grid item xs={12} sm={5}>
+                          <TextField
+                            fullWidth
+                            label="Nome da Atividade"
+                            value={activity.name}
+                            onChange={(e) =>
+                              handleActivityChange(
+                                categoryIndex,
+                                subcategoryIndex,
+                                activityIndex,
+                                "name",
+                                e.target.value,
+                              )
+                            }
+                            placeholder="Nome da Atividade..."
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={5}>
+                          <TextField
+                            type="number"
+                            fullWidth
+                            label="Carga Horária Máxima Permitida"
+                            value={activity.cargaHoraria}
+                            onChange={(e) =>
+                              handleActivityChange(
+                                categoryIndex,
+                                subcategoryIndex,
+                                activityIndex,
+                                "cargaHoraria",
+                                e.target.value,
+                              )
+                            }
+                            placeholder="Carga horária..."
+                            variant="outlined"
+                            onKeyDown={(e) => {
+                              if (!isNumeric(e.key)) {
+                                e.preventDefault()
+                              }
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={2}>
+                          <IconButton
+                            onClick={() => removeActivity(categoryIndex, subcategoryIndex, activityIndex)}
+                            aria-label="Remover atividade"
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Grid>
+                        <Grid item xs={12}>
+                          <TextField
+                            id="outlined-select-currency"
+                            style={{paddingBottom: '10px'}}
+                            select
+                            label="Período"
+                            defaultValue="hour"
+                            onChange={(e) => 
+                              handleActivityChange(
+                                categoryIndex,
+                                subcategoryIndex,
+                                activityIndex,
+                                "periodo",
+                                e.target.value,
+                              )
+                            }
+                          >
+                            {
+                              periods.map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </MenuItem>
+                              ))
+                            }
+                          </TextField>
+                        </Grid>
+                      </Grid>
+                    ))}
 
-              <Button
-                startIcon={<AddIcon />}
-                onClick={() => addSubcategory(categoryIndex)}
-                style={{ marginTop: "20px" }}
-              >
-                Adicionar Subcategoria
-              </Button>
+                    <Button
+                      startIcon={<AddIcon />}
+                      onClick={() => addActivity(categoryIndex, subcategoryIndex)}
+                      style={{ marginTop: "10px", marginLeft: "20px" }}
+                    >
+                      Adicionar Atividade
+                    </Button>
+                  </div>
+                ))}
 
-              <Divider style={{ margin: "20px 0" }} />
-            </div>
-          ))}
+                <Button
+                  startIcon={<AddIcon />}
+                  onClick={() => addSubcategory(categoryIndex)}
+                  style={{ marginTop: "20px" }}
+                >
+                  Adicionar Subcategoria
+                </Button>
 
-          <Button startIcon={<AddIcon />} onClick={addCategory} style={{ marginBottom: "20px" }}>
-            Adicionar Categoria
-          </Button>
+                <Divider style={{ margin: "20px 0" }} />
+              </div>
+            ))}
 
-          <Grid container justifyContent="center">
-            <StyledButton type="submit" variant="contained" color="secondary" size="large">
-              Cadastrar Barema
-            </StyledButton>
-          </Grid>
-        </form>
-      </FormContainer>
-    </Container>
+            <Button startIcon={<AddIcon />} onClick={addCategory} style={{ marginBottom: "20px" }}>
+              Adicionar Categoria
+            </Button>
+
+            <Grid container justifyContent="center">
+              <StyledButton type="submit" variant="contained" color="secondary" size="large">
+                Cadastrar Barema
+              </StyledButton>
+            </Grid>
+          </form>
+        </FormContainer>
+      </Container>
+    </>
   )
 }
 
