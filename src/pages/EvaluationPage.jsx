@@ -1,9 +1,11 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import styled from "styled-components"
 import { TextField, Paper } from "@mui/material"
 import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
 import CoordinatorTopBar from "../components/CoordinatorTopBar";
+import { useNavigate } from "react-router-dom";
+import { isUserLogged } from "../utils/Helpers";
 
 const mockRequestData = {
   studentName: "João Silva",
@@ -69,6 +71,15 @@ export default function EvaluationPage() {
       evaluations: prev.evaluations.filter((evaluation) => evaluation.id !== id),
     }))
   }
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isUserLogged()) {
+      navigate('/')
+    }
+  }, [])
+
 
   return (
     <Container>

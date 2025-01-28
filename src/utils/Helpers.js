@@ -41,3 +41,13 @@ export function isNumeric(input) {
   const regex = /^\d+$/;
   return regex.test(input);
 }
+
+export function isUserLogged() {
+  const accessToken = localStorage.getItem('accessToken')
+
+  if (!accessToken || accessToken == null || accessToken == undefined) {
+    return false
+  }
+
+  return true
+}

@@ -5,20 +5,21 @@ import { Link, useNavigate } from "react-router-dom";
 
 const CoordinatorTopBar = ({ userName }) => {
   const navigate = useNavigate()
-  
+
   function handleLogoutClick() {
     if (confirm("Você tem certeza que deseja sair?")) {
       localStorage.removeItem("accessToken")
       navigate('/')
     }
   }
+
   return (
     <TopBarContainer>
       <Logo>UniHoras</Logo>
       <Navigation>
-        <NavLink to="/home">Página Inicial</NavLink>
+        <NavLink to="/studentHome">Página Inicial</NavLink>
         <NavLink to="/barema">Barema</NavLink>
-        <NavLink to="/reports">Relatórios</NavLink>
+        <NavLink to="/progress">Progresso</NavLink>
       </Navigation>
       <UserSection>
         <IconButton aria-label="Perfil do usuário">

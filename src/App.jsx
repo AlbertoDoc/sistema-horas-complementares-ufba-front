@@ -6,6 +6,7 @@ import './App.css'
 import SystemToastContainer from './components/SystemToastContainer';
 import BaremaForm from './pages/BaremaPage';
 import EvaluationPage from './pages/EvaluationPage';
+import StudentHomePage from './pages/StudentHomePage';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path='/home' index element={<CoordinatorHomePage />}></Route>
           <Route path='/barema' element={<BaremaForm />}></Route>
           <Route path='/evaluation' element={<EvaluationPage />}></Route>
+          <Route path='/studentHome' element={<StudentHomePage />}></Route>
         </Routes>
       </BrowserRouter>
       <SystemToastContainer />

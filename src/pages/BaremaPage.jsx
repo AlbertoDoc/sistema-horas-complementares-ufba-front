@@ -6,8 +6,9 @@ import DeleteIcon from "@mui/icons-material/Delete"
 import {v4 as uuidv4} from 'uuid';
 import { isActivitiesHoursGreaterThanSubCategoriesMaxHours, isActivityHoursLessOrEqualZero, isActivityNameEmpty, isBaremaEmpty, isCategoryNameEmpty, isSubCategoryMaxHoursLessOrEqualZero, isSubCategoryNameEmpty } from "../utils/BaremaRules"
 import { showErrorToast } from "../utils/Toasts"
-import { isNumeric } from "../utils/Helpers"
+import { isNumeric, isUserLogged } from "../utils/Helpers"
 import CoordinatorTopBar from "../components/CoordinatorTopBar"
+import { useNavigate } from "react-router-dom"
 
 function BaremaForm() {
   const [categories, setCategories] = useState([
@@ -208,7 +209,13 @@ function BaremaForm() {
     })
   }
 
+  const navigate = useNavigate();
+
   useEffect(() => {
+    if (!isUserLogged()) {
+      navigate('/')
+    }
+
     if (error !== "") {
       showErrorToast(error)
       setError("")

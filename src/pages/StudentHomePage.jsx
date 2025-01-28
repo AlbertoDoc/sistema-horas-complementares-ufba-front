@@ -1,36 +1,37 @@
 import styled from "styled-components"
 import SearchIcon from '@mui/icons-material/Search';
 import { useEffect, useState } from "react";
-import TopBar from "../components/CoordinatorTopBar";
-import { useNavigate } from "react-router-dom";
+import StudentTopBar from "../components/StudentTopBar";
 import { isUserLogged } from "../utils/Helpers";
+import { useNavigate } from "react-router-dom";
 
-const CoordinatorHomePage = () => {
+const StudentHomePage = () => {
   const initialRequests = [
-    { number: "5568", registration: "2019215088", hours: 80, status: "ACEITO" },
-    { number: "5569", registration: "2019215087", hours: 20, status: "PENDENTE" },
-    { number: "5570", registration: "2019215086", hours: 100, status: "REJEITADO" },
-    { number: "5571", registration: "2019215016", hours: 30, status: "REJEITADO" },
-    { number: "5572", registration: "2018215026", hours: 70, status: "ACEITO" },
-    { number: "5573", registration: "2013215012", hours: 25, status: "PENDENTE" },
+    { number: "5568", registration: "2019215088", hours: 80, status: "ACEITO", pos: "" },
+    { number: "5569", registration: "2019215088", hours: 20, status: "PENDENTE", pos: "3" },
+    { number: "5570", registration: "2019215088", hours: 100, status: "REJEITADO", pos: "" },
+    { number: "5571", registration: "2019215088", hours: 30, status: "REJEITADO", pos: "" },
+    { number: "5572", registration: "2019215088", hours: 70, status: "ACEITO", pos: "" },
+    { number: "5573", registration: "2019215088", hours: 25, status: "PENDENTE", pos: "28" },
   ]
 
   const [requests, setRequests] = useState(initialRequests)
   const [searchTerm, setSearchTerm] = useState("")
   const [activeStatus, setActiveStatus] = useState(null)
+
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!isUserLogged()) {
       navigate('/')
+    } else {
+      const filteredRequests = initialRequests.filter((request) => {
+        const matchesSearch = request.number.includes(searchTerm)
+        const matchesStatus = !activeStatus || request.status === activeStatus
+        return matchesSearch && matchesStatus
+      })
+      setRequests(filteredRequests)
     }
-
-    const filteredRequests = initialRequests.filter((request) => {
-      const matchesSearch = request.number.includes(searchTerm)
-      const matchesStatus = !activeStatus || request.status === activeStatus
-      return matchesSearch && matchesStatus
-    })
-    setRequests(filteredRequests)
   }, [searchTerm, activeStatus])
 
   const handleStatusClick = (status) => {
@@ -39,9 +40,9 @@ const CoordinatorHomePage = () => {
 
   return (
     <Container>
-      <TopBar userName={"Usuário teste"} />
+      <StudentTopBar userName={"Usuário teste"} />
       <Header>
-        <Title>Pedidos</Title>
+        <Title>Seus pedidos</Title>
         <SearchContainer>
           <SearchInput>
             <SearchIcon />
@@ -71,6 +72,7 @@ const CoordinatorHomePage = () => {
                 <div>MATRÍCULA: {request.registration}</div>
               </RequestInfo>
               <RequestStatus>
+                {request.pos && <div>POSIÇÃO: {request.pos}</div>}
                 <div>CH: {request.hours} HORAS</div>
                 <div>STATUS: {request.status}</div>
               </RequestStatus>
@@ -223,4 +225,4 @@ const RequestStatus = styled.div`
   text-align: right;
 `
 
-export default CoordinatorHomePage
+export default StudentHomePage
