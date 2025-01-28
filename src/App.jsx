@@ -5,6 +5,7 @@ import CoordinatorHomePage from './pages/CoordinatorHomePage';
 import './App.css'
 import SystemToastContainer from './components/SystemToastContainer';
 import BaremaForm from './pages/BaremaPage';
+import EvaluationPage from './pages/EvaluationPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path='/register' element={<RegisterPage />}></Route>
           <Route path='/home' index element={<CoordinatorHomePage />}></Route>
           <Route path='/barema' element={<BaremaForm />}></Route>
+          <Route path='/evaluation' element={<EvaluationPage />}></Route>
         </Routes>
       </BrowserRouter>
       <SystemToastContainer />

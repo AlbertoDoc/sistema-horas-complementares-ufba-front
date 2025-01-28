@@ -162,7 +162,7 @@ function BaremaForm() {
     console.log("Form data:", { categories })
     
     if (validateBarema()) {
-      
+      // TODO fazer requisição de cadastro do barema
     }
   }
 
