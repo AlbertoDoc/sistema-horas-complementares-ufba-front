@@ -17,8 +17,8 @@ const CoordinatorTopBar = ({ userName }) => {
     <TopBarContainer>
       <Logo>UniHoras</Logo>
       <Navigation>
-        <NavLink to="/studentHome">Página Inicial</NavLink>
-        <NavLink to="/barema">Barema</NavLink>
+        <NavLink to="/home/student">Página Inicial</NavLink>
+        <NavLink to="/barema/view">Barema</NavLink>
         <NavLink to="/progress">Progresso</NavLink>
       </Navigation>
       <UserSection>

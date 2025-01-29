@@ -8,9 +8,10 @@ import { isActivitiesHoursGreaterThanSubCategoriesMaxHours, isActivityHoursLessO
 import { showErrorToast } from "../utils/Toasts"
 import { isNumeric, isUserLogged } from "../utils/Helpers"
 import CoordinatorTopBar from "../components/CoordinatorTopBar"
+import StudentTopBar from "../components/StudentTopBar"
 import { useNavigate } from "react-router-dom"
 
-function BaremaForm() {
+function BaremaForm({ isVisualization }) {
   const [categories, setCategories] = useState([
     {
       id: uuidv4(),
@@ -224,13 +225,23 @@ function BaremaForm() {
 
   return (
     <>
-      <CoordinatorTopBar userName={"Usuário teste"} />
+      { isVisualization ?
+        <StudentTopBar userName={"Usuário teste"} />
+        :
+        <CoordinatorTopBar userName={"Usuário teste"} />
+      }
       <Container maxWidth="xl">
         <FormContainer elevation={0}>
           <form onSubmit={handleSubmit}>
-            <Title variant="h4" gutterBottom>
-              Cadastro de Barema - Ciência da Computação
-            </Title>
+            { !isVisualization ?
+              <Title variant="h4" gutterBottom>
+                Cadastro de Barema - Ciência da Computação
+              </Title>
+              :
+              <Title variant="h4" gutterBottom>
+                Barema - Ciência da Computação
+              </Title>
+            }
 
             {categories.map((category, categoryIndex) => (
               <div key={categoryIndex}>
@@ -242,13 +253,16 @@ function BaremaForm() {
                       value={category.name}
                       onChange={(e) => handleCategoryChange(categoryIndex, e.target.value)}
                       variant="outlined"
+                      disabled={isVisualization}
                     />
                   </Grid>
-                  <Grid item>
-                    <IconButton onClick={() => removeCategory(categoryIndex)} aria-label="Remover categoria">
-                      <DeleteIcon />
-                    </IconButton>
-                  </Grid>
+                  { !isVisualization && 
+                    <Grid item>
+                      <IconButton onClick={() => removeCategory(categoryIndex)} aria-label="Remover categoria">
+                        <DeleteIcon />
+                      </IconButton>
+                    </Grid>
+                  }
                 </Grid>
 
                 {category.subcategories.map((subcategory, subcategoryIndex) => (
@@ -264,6 +278,7 @@ function BaremaForm() {
                           }
                           placeholder="Nome da SubCategoria..."
                           variant="outlined"
+                          disabled={isVisualization}
                         />
                       </Grid>
                       <Grid item xs={12} sm={5}>
@@ -282,16 +297,19 @@ function BaremaForm() {
                               e.preventDefault()
                             }
                           }}
+                          disabled={isVisualization}
                         />
                       </Grid>
-                      <Grid item xs={12} sm={2}>
-                        <IconButton
-                          onClick={() => removeSubcategory(categoryIndex, subcategoryIndex)}
-                          aria-label="Remover subcategoria"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Grid>
+                      { !isVisualization && 
+                        <Grid item xs={12} sm={2}>
+                          <IconButton
+                            onClick={() => removeSubcategory(categoryIndex, subcategoryIndex)}
+                            aria-label="Remover subcategoria"
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Grid>
+                      }
                     </Grid>
 
                     {subcategory.activities.map((activity, activityIndex) => (
@@ -312,6 +330,7 @@ function BaremaForm() {
                             }
                             placeholder="Nome da Atividade..."
                             variant="outlined"
+                            disabled={isVisualization}
                           />
                         </Grid>
                         <Grid item xs={12} sm={5}>
@@ -336,16 +355,19 @@ function BaremaForm() {
                                 e.preventDefault()
                               }
                             }}
+                            disabled={isVisualization}
                           />
                         </Grid>
-                        <Grid item xs={12} sm={2}>
-                          <IconButton
-                            onClick={() => removeActivity(categoryIndex, subcategoryIndex, activityIndex)}
-                            aria-label="Remover atividade"
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Grid>
+                        { !isVisualization && 
+                          <Grid item xs={12} sm={2}>
+                            <IconButton
+                              onClick={() => removeActivity(categoryIndex, subcategoryIndex, activityIndex)}
+                              aria-label="Remover atividade"
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Grid>
+                        }
                         <Grid item xs={12}>
                           <TextField
                             id="outlined-select-currency"
@@ -362,6 +384,7 @@ function BaremaForm() {
                                 e.target.value,
                               )
                             }
+                            disabled={isVisualization}
                           >
                             {
                               periods.map((option) => (
@@ -375,37 +398,46 @@ function BaremaForm() {
                       </Grid>
                     ))}
 
-                    <Button
-                      startIcon={<AddIcon />}
-                      onClick={() => addActivity(categoryIndex, subcategoryIndex)}
-                      style={{ marginTop: "10px", marginLeft: "20px" }}
-                    >
-                      Adicionar Atividade
-                    </Button>
+                    {!isVisualization &&
+                      <Button
+                        startIcon={<AddIcon />}
+                        onClick={() => addActivity(categoryIndex, subcategoryIndex)}
+                        style={{ marginTop: "10px", marginLeft: "20px" }}
+                      >
+                        Adicionar Atividade
+                      </Button>
+                    }
                   </div>
                 ))}
 
-                <Button
-                  startIcon={<AddIcon />}
-                  onClick={() => addSubcategory(categoryIndex)}
-                  style={{ marginTop: "20px" }}
-                >
-                  Adicionar Subcategoria
-                </Button>
-
-                <Divider style={{ margin: "20px 0" }} />
+                {!isVisualization && 
+                  <>
+                    <Button
+                      startIcon={<AddIcon />}
+                      onClick={() => addSubcategory(categoryIndex)}
+                      style={{ marginTop: "20px" }}
+                    >
+                      Adicionar Subcategoria
+                    </Button>
+                    <Divider style={{ margin: "20px 0" }} />
+                  </>
+                }
               </div>
             ))}
 
-            <Button startIcon={<AddIcon />} onClick={addCategory} style={{ marginBottom: "20px" }}>
-              Adicionar Categoria
-            </Button>
+            {!isVisualization && 
+              <>
+                <Button startIcon={<AddIcon />} onClick={addCategory} style={{ marginBottom: "20px" }}>
+                  Adicionar Categoria
+                </Button>
 
-            <Grid container justifyContent="center">
-              <StyledButton type="submit" variant="contained" color="secondary" size="large">
-                Cadastrar Barema
-              </StyledButton>
-            </Grid>
+                <Grid container justifyContent="center">
+                  <StyledButton type="submit" variant="contained" color="secondary" size="large">
+                    Cadastrar Barema
+                  </StyledButton>
+                </Grid>
+              </>
+            }
           </form>
         </FormContainer>
       </Container>
