@@ -1,29 +1,19 @@
 import axios from 'axios';
 import { processErrorResponse } from '../utils/Helpers';
 
-export function register(firstName, lastName, email, role, courseId, password, confirmPassword) {
+export function getCourses() {
   return new Promise((resolve, reject) => {
     const reqConfig = {
       headers: { 'content-type': 'application/json' },
     };
 
     axios
-      .post(
-        "http://localhost:8000/api/v1/auth/signup",
-        {
-          firstName: firstName,
-          lastName: lastName,
-          email: email,
-          role: role,
-          courseId: courseId,
-          password: password,
-          confirmPassword: confirmPassword
-        },
+      .get(
+        "http://localhost:8000/api/v1/course/",
         reqConfig,
       )
       .then((response) => {
-        console.log(response)
-        if (response.status === 201) {
+        if (response.status === 200) {
           resolve(response.data);
         }
       })

@@ -1,14 +1,15 @@
 import { MenuItem, TextField } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from 'styled-components';
 import { isOnlyNumbers, validateEmail, validateUFBAEmail } from '../utils/Helpers'
 import { register } from "../services/register";
 import { showErrorToast, showSuccessToast } from "../utils/Toasts";
+import { getCourses } from "../services/getCourses";
+import { roles } from '../constants/roles'
 
 export default function RegisterPage() {
-  // TODO implementar endpoint get de cursos
-  // enviar tipo usuario e os campos de curso ao cadastrar coordenador
+  const [courses, setCourses] = useState({id: "0", name: "Selecione um curso"})
   const [name, setName] = useState('');
   const [nameError, setNameError] = useState('');
 
@@ -18,13 +19,10 @@ export default function RegisterPage() {
   const [registrationNumber, setRegistrationNumber] = useState('');
   const [registrationNumberError, setRegistrationNumberError] = useState('');
 
-  const [selectedRole, setSelectedRole] = useState('Student');
+  const [selectedRole, setSelectedRole] = useState('student');
   const [selectedRoleError, setSelectedRoleError] = useState('');
 
-  const [courseName, setCourseName] = useState('');
-  const [courseNameError, setCourseNameError] = useState('');
-
-  const [selectedCourse, setSelectedCourse] = useState('Ciência da Computação')
+  const [selectedCourse, setSelectedCourse] = useState('Selecione um curso')
   const [selectedCourseError, setSelectedCourseError] = useState('');
 
   const [password, setPassword] = useState('');
@@ -35,30 +33,18 @@ export default function RegisterPage() {
 
   const navigate = useNavigate();
 
-  const roles = [
-    {
-      value: 'Student',
-      label: 'Estudante'
-    },
-    {
-      value: 'Coordinator',
-      label: 'Coordenador'
-    }
-  ]
-
-  const courses = [
-    {
-      value: 'Ciência da Computação',
-      label: 'Ciência da Computação'
-    }
-  ]
+  useEffect(() => {
+    getCourses().then((response) => {
+      setCourses(response)
+    })
+    .catch((error) => showErrorToast(error))
+  }, [])
 
   function handleRegistrationClick() {
     console.log(name)
     console.log(email)
     console.log(registrationNumber)
     console.log(selectedRole)
-    console.log(courseName)
     console.log(password)
     console.log(confirmPassword)
 
@@ -106,14 +92,7 @@ export default function RegisterPage() {
       setSelectedRoleError('');
     }
 
-    if (courseName === '' && selectedRole === 'Coordinator') {
-      setCourseNameError('O nome do curso não pode ser vazio.');
-      valid = false;
-    } else {
-      setCourseNameError('');
-    }
-
-    if (selectedCourse === '' && selectedRole === 'Student') {
+    if (selectedCourse === 'Selecione um curso' && selectedRole === 'student') {
       setSelectedCourseError('Você deve escolher um curso.');
       valid = false;
     } else {
@@ -148,10 +127,8 @@ export default function RegisterPage() {
       let splitName = name.split(' ')
       let firstName = splitName[0]
       let lastName = splitName.slice(1).join(" ");
-      console.log("firstName: " + firstName)
-      console.log("lastName: " + lastName)
-      register(firstName, lastName, email, password, confirmPassword)
-      .then((response) => {
+      register(firstName, lastName, email, selectedRole, selectedCourse, password, confirmPassword)
+      .then(() => {
         navigate('/')
         showSuccessToast('Cadastro concluído com sucesso. Faça o login para entrar na plataforma.')
       })
@@ -202,7 +179,7 @@ export default function RegisterPage() {
             style={{paddingBottom: '10px'}}
             select
             label="Perfil"
-            defaultValue="Student"
+            defaultValue="student"
             error={selectedRoleError !== ''}
             helperText={selectedRoleError}
             onChange={(event) => setSelectedRole(event.target.value)}
@@ -216,37 +193,28 @@ export default function RegisterPage() {
             }
           </TextField>
 
-          {selectedRole === "Coordinator" ? 
-            <TextField
-              id="outlined-helperText"
-              style={{paddingBottom: '10px'}}
-              label="Nome do curso"
-              value={courseName}
-              error={courseNameError !== ''}
-              helperText={courseNameError}
-              onChange={(event) => setCourseName(event.target.value)}
-            />
-
-            :
-
-            <TextField
-            id="outlined-select-currency"
-            style={{paddingBottom: '10px'}}
-            select
-            label="Curso"
-            defaultValue="Ciência da Computação" // TODO implementar endpoint GET de cursos
-            error={selectedCourseError !== ''}
-            helperText={selectedCourseError}
-            onChange={(event) => setSelectedCourse(event.target.value)}
-          >
-            {
-              courses.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
+          {courses.length > 0 && (
+              <TextField
+                id="outlined-select-currency"
+                style={{ paddingBottom: "10px" }}
+                select
+                label="Curso"
+                defaultValue={"Selecione um curso"}
+                value={selectedCourse}
+                error={selectedCourseError !== ""}
+                helperText={selectedCourseError}
+                onChange={(event) => setSelectedCourse(event.target.value)}
+              >
+                <MenuItem key={"0"} value={"Selecione um curso"}>
+                  {"Selecione um curso"}
                 </MenuItem>
-              ))
-            }
-          </TextField>
+                {courses.map((option) => (
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )
           }
 
           <TextField
