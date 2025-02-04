@@ -7,6 +7,7 @@ import SystemToastContainer from './components/SystemToastContainer';
 import BaremaPage from './pages/BaremaPage';
 import EvaluationPage from './pages/EvaluationPage';
 import StudentHomePage from './pages/StudentHomePage';
+import ProgressPage from './pages/ProgressPage';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path='/evaluation' element={<EvaluationPage />}></Route>
           <Route path='/home/student' element={<StudentHomePage />}></Route>
           <Route path='/barema/view' element={<BaremaPage isVisualization={true} />}></Route>
+          <Route path='/progress' element={<ProgressPage />}></Route>
         </Routes>
       </BrowserRouter>
       <SystemToastContainer />

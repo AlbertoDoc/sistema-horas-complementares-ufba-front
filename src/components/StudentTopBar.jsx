@@ -3,7 +3,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Link, useNavigate } from "react-router-dom";
 
-const CoordinatorTopBar = ({ userName }) => {
+const StudentTopBar = ({ userName }) => {
   const navigate = useNavigate()
 
   function handleLogoutClick() {
@@ -98,5 +98,5 @@ const UserName = styled.span`
   }
 `
 
-export default CoordinatorTopBar
+export default StudentTopBar
 
