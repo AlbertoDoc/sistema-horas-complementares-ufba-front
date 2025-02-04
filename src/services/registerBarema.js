@@ -6,7 +6,7 @@ const categoryEndpoint = "http://localhost:8000/api/v1/auth/login";
 const subCategoryEndpoint = "http://localhost:8000/api/v1/auth/login";
 const activityEndpoint = "http://localhost:8000/api/v1/auth/login";
 
-export function registerBarema(email, password) {
+export function registerBarema(categories) {
   return new Promise((resolve, reject) => {
     const reqConfig = {
       headers: { 'content-type': 'application/json' },
@@ -16,8 +16,9 @@ export function registerBarema(email, password) {
       .post(
         baremaEndpoint,
         {
-          email: email,
-          password: password
+          courseCode: localStorage.getItem("courseId"),
+          creationYear: new Date().getFullYear(),
+          categories: categories
         },
         reqConfig,
       )

@@ -10,6 +10,7 @@ import { isNumeric, isUserLogged } from "../utils/Helpers"
 import CoordinatorTopBar from "../components/CoordinatorTopBar"
 import StudentTopBar from "../components/StudentTopBar"
 import { useNavigate } from "react-router-dom"
+import { registerBarema } from "../services/registerBarema"
 
 function BaremaForm({ isVisualization }) {
   const [categories, setCategories] = useState([
@@ -164,7 +165,9 @@ function BaremaForm({ isVisualization }) {
     console.log("Form data:", { categories })
     
     if (validateBarema()) {
-      // TODO fazer requisição de cadastro do barema
+      registerBarema(categories)
+      .then((response) => console.log(response))
+      .catch((error) => console.log(error))
     }
   }
 
@@ -205,9 +208,11 @@ function BaremaForm({ isVisualization }) {
 
         if (isActivitiesHoursGreaterThanSubCategoriesMaxHours(subCategory)) {
           setError(`A categoria ${category.name} contém uma subcategoria onde as atividades dela excedem o máximo permitido pela subcategoria`)
+          return false
         }
       })
     })
+    return true
   }
 
   const navigate = useNavigate();

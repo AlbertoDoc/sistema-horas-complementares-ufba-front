@@ -46,7 +46,12 @@ export default function LoginPage() {
     if (valid) {
       login(email, password)
       .then((response) => {
-        navigate('/home')
+        console.log(response)
+        if (response.data.role === 'coordinator') {
+          navigate('/home')
+        } else {
+          navigate('/home/student')
+        }
       })
       .catch((error) => {
         console.log(error)

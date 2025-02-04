@@ -21,6 +21,8 @@ export function login(email, password) {
         if (response.status === 200) {
           localStorage.clear()
           localStorage.setItem("accessToken", response.data.data.token)
+          localStorage.setItem("role", response.data.data.role)
+          localStorage.setItem("courseId", response.data.data.courseId)
           resolve(response.data);
         }
       })
