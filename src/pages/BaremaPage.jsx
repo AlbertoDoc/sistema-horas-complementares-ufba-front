@@ -5,11 +5,13 @@ import AddIcon from "@mui/icons-material/Add"
 import DeleteIcon from "@mui/icons-material/Delete"
 import {v4 as uuidv4} from 'uuid';
 import { isActivitiesHoursGreaterThanSubCategoriesMaxHours, isActivityHoursLessOrEqualZero, isActivityNameEmpty, isBaremaEmpty, isCategoryNameEmpty, isSubCategoryMaxHoursLessOrEqualZero, isSubCategoryNameEmpty } from "../utils/BaremaRules"
-import { showErrorToast } from "../utils/Toasts"
+import { showErrorToast, showSuccessToast } from "../utils/Toasts"
 import { isNumeric, isUserLogged } from "../utils/Helpers"
 import CoordinatorTopBar from "../components/CoordinatorTopBar"
 import StudentTopBar from "../components/StudentTopBar"
 import { useNavigate } from "react-router-dom"
+import { registerBarema } from "../services/registerBarema"
+import { getBaremaByCourseId } from "../services/getBaremaByCourseId"
 
 function BaremaForm({ isVisualization }) {
   const [categories, setCategories] = useState([
@@ -20,8 +22,8 @@ function BaremaForm({ isVisualization }) {
         {
           id: uuidv4(),
           name: "",
-          maximoHoras: 0,
-          activities: [{ id: uuidv4(), name: "", cargaHoraria: 0, periodo: "hour" }],
+          maxHours: 0,
+          activities: [{ id: uuidv4(), name: "", maxHours: 0, period: "hour" }],
         },
       ],
     },
@@ -108,8 +110,8 @@ function BaremaForm({ isVisualization }) {
           {
             id: uuidv4(),
             name: "",
-            maximoHoras: 0,
-            activities: [{ id: uuidv4(), name: "", cargaHoraria: 0, periodo: "hour" }],
+            maxHours: 0,
+            activities: [{ id: uuidv4(), name: "", maxHours: 0, period: "hour" }],
           },
         ],
       },
@@ -126,8 +128,8 @@ function BaremaForm({ isVisualization }) {
     newCategories[categoryIndex].subcategories.push({
       id: uuidv4(),
       name: "",
-      maximoHoras: "",
-      activities: [{ name: "", cargaHoraria: 0, periodo: "hour" }],
+      maxHours: "",
+      activities: [{ name: "", maxHours: 0, period: "hour" }],
     })
     setCategories(newCategories)
   }
@@ -145,8 +147,8 @@ function BaremaForm({ isVisualization }) {
     newCategories[categoryIndex].subcategories[subcategoryIndex].activities.push({
       id: uuidv4(),
       name: "",
-      cargaHoraria: 0,
-      periodo: "hour",
+      maxHours: 0,
+      period: "hour",
     })
     setCategories(newCategories)
   }
@@ -164,7 +166,12 @@ function BaremaForm({ isVisualization }) {
     console.log("Form data:", { categories })
     
     if (validateBarema()) {
-      // TODO fazer requisição de cadastro do barema
+      registerBarema(categories)
+      .then(() => {
+        showSuccessToast("Barema cadastrado com sucesso.")
+        navigate('/home')
+      })
+      .catch((error) => showErrorToast(error))
     }
   }
 
@@ -198,16 +205,18 @@ function BaremaForm({ isVisualization }) {
           }
 
           if (isActivityHoursLessOrEqualZero(activity)) {
-            setError(`A categoria ${category.name} contém uma subcategoria de nome ${subCategory.name} que contém uma atividade com máximo de ${activity.periodo} menor que 1`)
+            setError(`A categoria ${category.name} contém uma subcategoria de nome ${subCategory.name} que contém uma atividade com máximo de ${activity.period} menor que 1`)
             return false
           }
         })
 
         if (isActivitiesHoursGreaterThanSubCategoriesMaxHours(subCategory)) {
           setError(`A categoria ${category.name} contém uma subcategoria onde as atividades dela excedem o máximo permitido pela subcategoria`)
+          return false
         }
       })
     })
+    return true
   }
 
   const navigate = useNavigate();
@@ -221,6 +230,8 @@ function BaremaForm({ isVisualization }) {
       showErrorToast(error)
       setError("")
     }
+
+    getBaremaByCourseId()
   }, [error])
 
   return (
@@ -286,9 +297,9 @@ function BaremaForm({ isVisualization }) {
                           type="number"
                           fullWidth
                           label="Máximo de Horas"
-                          value={subcategory.maximoHoras}
+                          value={subcategory.maxHours}
                           onChange={(e) =>
-                            handleSubcategoryChange(categoryIndex, subcategoryIndex, "maximoHoras", e.target.value)
+                            handleSubcategoryChange(categoryIndex, subcategoryIndex, "maxHours", e.target.value)
                           }
                           placeholder="Horas da SubCategoria..."
                           variant="outlined"
@@ -338,13 +349,13 @@ function BaremaForm({ isVisualization }) {
                             type="number"
                             fullWidth
                             label="Carga Horária Máxima Permitida"
-                            value={activity.cargaHoraria}
+                            value={activity.maxHours}
                             onChange={(e) =>
                               handleActivityChange(
                                 categoryIndex,
                                 subcategoryIndex,
                                 activityIndex,
-                                "cargaHoraria",
+                                "maxHours",
                                 e.target.value,
                               )
                             }
@@ -380,7 +391,7 @@ function BaremaForm({ isVisualization }) {
                                 categoryIndex,
                                 subcategoryIndex,
                                 activityIndex,
-                                "periodo",
+                                "period",
                                 e.target.value,
                               )
                             }

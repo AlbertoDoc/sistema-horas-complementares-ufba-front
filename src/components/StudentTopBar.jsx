@@ -3,7 +3,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Link, useNavigate } from "react-router-dom";
 
-const StudentTopBar = ({ userName }) => {
+const StudentTopBar = () => {
   const navigate = useNavigate()
 
   function handleLogoutClick() {
@@ -25,7 +25,7 @@ const StudentTopBar = ({ userName }) => {
         <IconButton aria-label="Perfil do usuário">
           <PersonIcon size={20} />
         </IconButton>
-        <UserName>{userName}</UserName>
+        <UserName>{localStorage.getItem("firstName")}</UserName>
         <IconButton aria-label="Sair" onClick={handleLogoutClick}>
           <LogoutIcon size={20} />
         </IconButton>

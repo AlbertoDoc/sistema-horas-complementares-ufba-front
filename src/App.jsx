@@ -8,6 +8,7 @@ import BaremaPage from './pages/BaremaPage';
 import EvaluationPage from './pages/EvaluationPage';
 import StudentHomePage from './pages/StudentHomePage';
 import ProgressPage from './pages/ProgressPage';
+import RegisterHoursPage from './pages/RegisterHoursPage';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path='/home/student' element={<StudentHomePage />}></Route>
           <Route path='/barema/view' element={<BaremaPage isVisualization={true} />}></Route>
           <Route path='/progress' element={<ProgressPage />}></Route>
+          <Route path='/hours/register' element={<RegisterHoursPage />}></Route>
         </Routes>
       </BrowserRouter>
       <SystemToastContainer />
