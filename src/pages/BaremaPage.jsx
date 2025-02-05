@@ -11,6 +11,7 @@ import CoordinatorTopBar from "../components/CoordinatorTopBar"
 import StudentTopBar from "../components/StudentTopBar"
 import { useNavigate } from "react-router-dom"
 import { registerBarema } from "../services/registerBarema"
+import { getBaremaByCourseId } from "../services/getBaremaByCourseId"
 
 function BaremaForm({ isVisualization }) {
   const [categories, setCategories] = useState([
@@ -229,6 +230,8 @@ function BaremaForm({ isVisualization }) {
       showErrorToast(error)
       setError("")
     }
+
+    getBaremaByCourseId()
   }, [error])
 
   return (
