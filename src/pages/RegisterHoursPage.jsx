@@ -5,19 +5,20 @@ import { CloudUpload, Close } from "@mui/icons-material"
 import StudentTopBar from "../components/StudentTopBar"
 import { progressData } from "../utils/mockProgressData"
 import { Category } from "./ProgressPage"
-import { mockBarema } from "../utils/mockBarema"
 import { useNavigate } from "react-router-dom"
 import { isUserLogged } from "../utils/Helpers"
 import { showErrorToast } from "../utils/Toasts"
+import { getBaremaByCourseId } from "../services/getBaremaByCourseId"
 
 export default function RegisterHoursPage() {
   const [error, setError] = useState("");
+  const [categories, setCategories] = useState([])
   const [files, setFiles] = useState([])
   const [formData, setFormData] = useState({
     category: "",
     subcategory: "",
     activity: "",
-    hours: "10",
+    hours: "0",
     startDate: "2025-01-01",
     endDate: "2025-01-01",
     observations: "",
@@ -52,19 +53,19 @@ export default function RegisterHoursPage() {
   }
 
   function getSubCategories() {
-    const selectedCategory = mockBarema.find((category) => category.id === formData.category)
+    const selectedCategory = categories.find((category) => category.id === formData.category)
 
     if (selectedCategory !== undefined) {
-      return selectedCategory.subcategories
+      return selectedCategory.subCategories
     }
     return []
   }
 
   function getActivities() {
-    const selectedCategory = mockBarema.find((category) => category.id === formData.category)
+    const selectedCategory = categories.find((category) => category.id === formData.category)
 
     if (selectedCategory !== undefined) {
-      const selectedSubcategory = selectedCategory.subcategories.find((subcategory) => subcategory.id === formData.subcategory)
+      const selectedSubcategory = selectedCategory.subCategories.find((subcategory) => subcategory.id === formData.subcategory)
 
       if (selectedSubcategory !== undefined) {
         return selectedSubcategory.activities.length > 0 ? selectedSubcategory.activities : null
@@ -120,6 +121,10 @@ export default function RegisterHoursPage() {
       showErrorToast(error)
       setError("")
     }
+
+    getBaremaByCourseId()
+    .then(response => setCategories(response.categories))
+    .catch(error => showErrorToast(error))
   }, [error])
 
   return (
@@ -139,7 +144,7 @@ export default function RegisterHoursPage() {
           <FormControl fullWidth>
             <InputLabel>Categoria</InputLabel>
             <Select name="category" value={formData.category} onChange={handleChange} label="Categoria">
-              {mockBarema.map((category) => (
+              {categories.map((category) => (
                 <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>
               ))}
             </Select>
