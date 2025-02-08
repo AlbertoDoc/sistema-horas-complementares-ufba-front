@@ -12,13 +12,14 @@ import StudentTopBar from "../components/StudentTopBar"
 import { useNavigate } from "react-router-dom"
 import { registerBarema } from "../services/registerBarema"
 import { getBaremaByCourseId } from "../services/getBaremaByCourseId"
+import { getCourseById } from "../services/getCourseById"
 
 function BaremaForm({ isVisualization }) {
   const [categories, setCategories] = useState([
     {
       id: uuidv4(),
       name: "",
-      subcategories: [
+      subCategories: [
         {
           id: uuidv4(),
           name: "",
@@ -81,6 +82,7 @@ function BaremaForm({ isVisualization }) {
   ]
 
   const [error, setError] = useState("");
+  const [courseName, setCourseName] = useState("")
 
   const handleCategoryChange = (categoryIndex, value) => {
     const newCategories = [...categories]
@@ -90,13 +92,13 @@ function BaremaForm({ isVisualization }) {
 
   const handleSubcategoryChange = (categoryIndex, subcategoryIndex, field, value) => {
     const newCategories = [...categories]
-    newCategories[categoryIndex].subcategories[subcategoryIndex][field] = value
+    newCategories[categoryIndex].subCategories[subcategoryIndex][field] = value
     setCategories(newCategories)
   }
 
   const handleActivityChange = (categoryIndex, subcategoryIndex, activityIndex, field, value) => {
     const newCategories = [...categories]
-    newCategories[categoryIndex].subcategories[subcategoryIndex].activities[activityIndex][field] = value
+    newCategories[categoryIndex].subCategories[subcategoryIndex].activities[activityIndex][field] = value
     setCategories(newCategories)
   }
 
@@ -106,7 +108,7 @@ function BaremaForm({ isVisualization }) {
       {
         id: uuidv4(),
         name: "",
-        subcategories: [
+        subCategories: [
           {
             id: uuidv4(),
             name: "",
@@ -125,7 +127,7 @@ function BaremaForm({ isVisualization }) {
 
   const addSubcategory = (categoryIndex) => {
     const newCategories = [...categories]
-    newCategories[categoryIndex].subcategories.push({
+    newCategories[categoryIndex].subCategories.push({
       id: uuidv4(),
       name: "",
       maxHours: "",
@@ -136,7 +138,7 @@ function BaremaForm({ isVisualization }) {
 
   const removeSubcategory = (categoryIndex, subcategoryIndex) => {
     const newCategories = [...categories]
-    newCategories[categoryIndex].subcategories = newCategories[categoryIndex].subcategories.filter(
+    newCategories[categoryIndex].subCategories = newCategories[categoryIndex].subCategories.filter(
       (_, i) => i !== subcategoryIndex,
     )
     setCategories(newCategories)
@@ -144,7 +146,7 @@ function BaremaForm({ isVisualization }) {
 
   const addActivity = (categoryIndex, subcategoryIndex) => {
     const newCategories = [...categories]
-    newCategories[categoryIndex].subcategories[subcategoryIndex].activities.push({
+    newCategories[categoryIndex].subCategories[subcategoryIndex].activities.push({
       id: uuidv4(),
       name: "",
       maxHours: 0,
@@ -155,9 +157,9 @@ function BaremaForm({ isVisualization }) {
 
   const removeActivity = (categoryIndex, subcategoryIndex, activityIndex) => {
     const newCategories = [...categories]
-    newCategories[categoryIndex].subcategories[subcategoryIndex].activities = newCategories[
+    newCategories[categoryIndex].subCategories[subcategoryIndex].activities = newCategories[
       categoryIndex
-    ].subcategories[subcategoryIndex].activities.filter((_, i) => i !== activityIndex)
+    ].subCategories[subcategoryIndex].activities.filter((_, i) => i !== activityIndex)
     setCategories(newCategories)
   }
 
@@ -187,7 +189,7 @@ function BaremaForm({ isVisualization }) {
         return false
       }
 
-      category.subcategories.forEach((subCategory) => {
+      category.subCategories.forEach((subCategory) => {
         if (isSubCategoryNameEmpty(subCategory)) {
           setError(`A categoria ${category.name} contém uma subcategoria com nome vazio`)
           return false
@@ -231,7 +233,17 @@ function BaremaForm({ isVisualization }) {
       setError("")
     }
 
-    getBaremaByCourseId()
+    getCourseById()
+    .then(response => setCourseName(response.name))
+    .catch(error => showErrorToast(error))
+
+    if (isVisualization) {
+      getBaremaByCourseId()
+      .then((response) => {
+        setCategories(response.categories)
+      })
+      .catch((error) => showErrorToast(error))
+    }
   }, [error])
 
   return (
@@ -246,11 +258,11 @@ function BaremaForm({ isVisualization }) {
           <form onSubmit={handleSubmit}>
             { !isVisualization ?
               <Title variant="h4" gutterBottom>
-                Cadastro de Barema - Ciência da Computação
+                {`Cadastro de Barema - ${courseName}`}
               </Title>
               :
               <Title variant="h4" gutterBottom>
-                Barema - Ciência da Computação
+                {`Barema - ${courseName}`}
               </Title>
             }
 
@@ -276,7 +288,7 @@ function BaremaForm({ isVisualization }) {
                   }
                 </Grid>
 
-                {category.subcategories.map((subcategory, subcategoryIndex) => (
+                {category.subCategories.map((subcategory, subcategoryIndex) => (
                   <div key={subcategoryIndex}>
                     <Grid container spacing={3} style={{ marginTop: "10px" }}>
                       <Grid item xs={12} sm={5}>

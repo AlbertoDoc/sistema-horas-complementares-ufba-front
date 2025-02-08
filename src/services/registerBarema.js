@@ -20,7 +20,7 @@ export function registerBarema(categories) {
           console.log(response)
           const categoryId = response.id
 
-          category.subcategories.forEach(subcategory => {
+          category.subCategories.forEach(subcategory => {
             createSubCategory(subcategory.name, subcategory.maxHours, categoryId)
             .then(response => {
               console.log(response)

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import StudentTopBar from "../components/StudentTopBar";
 import { isUserLogged } from "../utils/Helpers";
 import { useNavigate } from "react-router-dom";
+import { Fab } from "@mui/material";
+import AddIcon from '@mui/icons-material/Add';
 
 const StudentHomePage = () => {
   const initialRequests = [
@@ -80,6 +82,9 @@ const StudentHomePage = () => {
           </RequestCard>
         ))}
       </RequestsList>
+      <Fab color="primary" aria-label="add" style={{position: "absolute", right: "0", margin: "24px"}} onClick={() => navigate("/hours/register")}>
+        <AddIcon />
+      </Fab>
     </Container>
   )
 }
