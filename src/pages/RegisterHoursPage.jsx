@@ -7,8 +7,10 @@ import { progressData } from "../utils/mockProgressData"
 import { Category } from "./ProgressPage"
 import { useNavigate } from "react-router-dom"
 import { isUserLogged } from "../utils/Helpers"
-import { showErrorToast } from "../utils/Toasts"
+import { showErrorToast, showSuccessToast } from "../utils/Toasts"
 import { getBaremaByCourseId } from "../services/getBaremaByCourseId"
+import { registerHours } from "../services/registerHours"
+import { uploadDocuments } from "../services/uploadDocuments"
 
 export default function RegisterHoursPage() {
   const [error, setError] = useState("");
@@ -81,7 +83,13 @@ export default function RegisterHoursPage() {
     console.log(files)
 
     if (validateSubmission()) {
-
+      registerHours(formData.category, formData.hours, formData.subcategory, formData.activity, formData.startDate, formData.endDate, formData.observations)
+      .then(response => {
+        //uploadDocuments(files)
+        showSuccessToast("Pedido cadastrado com sucesso!")
+        navigate("/home/student")
+      })
+      .catch(error => showErrorToast(error))
     }
   }
 
@@ -103,11 +111,15 @@ export default function RegisterHoursPage() {
 
     if (formData.hours <= 0) {
       setError("CH deve ser maior ou igual a 1.")
+      return false
     }
 
     if (files.length === 0) {
       setError("Insira pelo menos um comprovante.")
+      return false
     }
+
+    return true
   }
 
   const navigate = useNavigate();

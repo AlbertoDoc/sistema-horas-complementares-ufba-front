@@ -30,6 +30,8 @@ function BaremaForm({ isVisualization }) {
     },
   ])
 
+  const [isVisualizationState, setIsVisualizationState] = useState(isVisualization)
+
   const periods = [
     {
       value: 'semester',
@@ -237,26 +239,27 @@ function BaremaForm({ isVisualization }) {
     .then(response => setCourseName(response.name))
     .catch(error => showErrorToast(error))
 
-    if (isVisualization) {
       getBaremaByCourseId()
       .then((response) => {
-        setCategories(response.categories)
+        if (response != null) {
+          setIsVisualizationState(true)
+          setCategories(response.categories)
+        }
       })
       .catch((error) => showErrorToast(error))
-    }
   }, [error])
 
   return (
     <>
-      { isVisualization ?
-        <StudentTopBar userName={"Usuário teste"} />
+      { localStorage.getItem("role") === "student" ?
+        <StudentTopBar />
         :
-        <CoordinatorTopBar userName={"Usuário teste"} />
+        <CoordinatorTopBar />
       }
       <Container maxWidth="xl">
         <FormContainer elevation={0}>
           <form onSubmit={handleSubmit}>
-            { !isVisualization ?
+            { !isVisualizationState ?
               <Title variant="h4" gutterBottom>
                 {`Cadastro de Barema - ${courseName}`}
               </Title>
@@ -276,10 +279,10 @@ function BaremaForm({ isVisualization }) {
                       value={category.name}
                       onChange={(e) => handleCategoryChange(categoryIndex, e.target.value)}
                       variant="outlined"
-                      disabled={isVisualization}
+                      disabled={isVisualizationState}
                     />
                   </Grid>
-                  { !isVisualization && 
+                  { !isVisualizationState && 
                     <Grid item>
                       <IconButton onClick={() => removeCategory(categoryIndex)} aria-label="Remover categoria">
                         <DeleteIcon />
@@ -301,7 +304,7 @@ function BaremaForm({ isVisualization }) {
                           }
                           placeholder="Nome da SubCategoria..."
                           variant="outlined"
-                          disabled={isVisualization}
+                          disabled={isVisualizationState}
                         />
                       </Grid>
                       <Grid item xs={12} sm={5}>
@@ -320,10 +323,10 @@ function BaremaForm({ isVisualization }) {
                               e.preventDefault()
                             }
                           }}
-                          disabled={isVisualization}
+                          disabled={isVisualizationState}
                         />
                       </Grid>
-                      { !isVisualization && 
+                      { !isVisualizationState && 
                         <Grid item xs={12} sm={2}>
                           <IconButton
                             onClick={() => removeSubcategory(categoryIndex, subcategoryIndex)}
@@ -353,7 +356,7 @@ function BaremaForm({ isVisualization }) {
                             }
                             placeholder="Nome da Atividade..."
                             variant="outlined"
-                            disabled={isVisualization}
+                            disabled={isVisualizationState}
                           />
                         </Grid>
                         <Grid item xs={12} sm={5}>
@@ -378,10 +381,10 @@ function BaremaForm({ isVisualization }) {
                                 e.preventDefault()
                               }
                             }}
-                            disabled={isVisualization}
+                            disabled={isVisualizationState}
                           />
                         </Grid>
-                        { !isVisualization && 
+                        { !isVisualizationState && 
                           <Grid item xs={12} sm={2}>
                             <IconButton
                               onClick={() => removeActivity(categoryIndex, subcategoryIndex, activityIndex)}
@@ -407,7 +410,7 @@ function BaremaForm({ isVisualization }) {
                                 e.target.value,
                               )
                             }
-                            disabled={isVisualization}
+                            disabled={isVisualizationState}
                           >
                             {
                               periods.map((option) => (
@@ -421,7 +424,7 @@ function BaremaForm({ isVisualization }) {
                       </Grid>
                     ))}
 
-                    {!isVisualization &&
+                    {!isVisualizationState &&
                       <Button
                         startIcon={<AddIcon />}
                         onClick={() => addActivity(categoryIndex, subcategoryIndex)}
@@ -433,7 +436,7 @@ function BaremaForm({ isVisualization }) {
                   </div>
                 ))}
 
-                {!isVisualization && 
+                {!isVisualizationState && 
                   <>
                     <Button
                       startIcon={<AddIcon />}
@@ -448,7 +451,7 @@ function BaremaForm({ isVisualization }) {
               </div>
             ))}
 
-            {!isVisualization && 
+            {!isVisualizationState && 
               <>
                 <Button startIcon={<AddIcon />} onClick={addCategory} style={{ marginBottom: "20px" }}>
                   Adicionar Categoria

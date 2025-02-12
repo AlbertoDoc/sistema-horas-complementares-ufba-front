@@ -19,7 +19,8 @@ function App() {
           <Route path='/register' element={<RegisterPage />}></Route>
           <Route path='/home' index element={<CoordinatorHomePage />}></Route>
           <Route path='/barema' element={<BaremaPage isVisualization={false} />}></Route>
-          <Route path='/evaluation' element={<EvaluationPage />}></Route>
+          <Route path='/evaluation/:requestId' element={<EvaluationPage isVisualization={false} />}></Route>
+          <Route path='/evaluation/:requestId/visualization' element={<EvaluationPage isVisualization={true} />}></Route>
           <Route path='/home/student' element={<StudentHomePage />}></Route>
           <Route path='/barema/view' element={<BaremaPage isVisualization={true} />}></Route>
           <Route path='/progress' element={<ProgressPage />}></Route>

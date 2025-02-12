@@ -6,18 +6,11 @@ import { isUserLogged } from "../utils/Helpers";
 import { useNavigate } from "react-router-dom";
 import { Fab } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
+import { getRequestsByUserId } from "../services/getRequestsByUserId";
+import { showErrorToast } from "../utils/Toasts";
 
 const StudentHomePage = () => {
-  const initialRequests = [
-    { number: "5568", registration: "2019215088", hours: 80, status: "ACEITO", pos: "" },
-    { number: "5569", registration: "2019215088", hours: 20, status: "PENDENTE", pos: "3" },
-    { number: "5570", registration: "2019215088", hours: 100, status: "REJEITADO", pos: "" },
-    { number: "5571", registration: "2019215088", hours: 30, status: "REJEITADO", pos: "" },
-    { number: "5572", registration: "2019215088", hours: 70, status: "ACEITO", pos: "" },
-    { number: "5573", registration: "2019215088", hours: 25, status: "PENDENTE", pos: "28" },
-  ]
-
-  const [requests, setRequests] = useState(initialRequests)
+  const [requests, setRequests] = useState([])
   const [searchTerm, setSearchTerm] = useState("")
   const [activeStatus, setActiveStatus] = useState(null)
 
@@ -27,12 +20,20 @@ const StudentHomePage = () => {
     if (!isUserLogged()) {
       navigate('/')
     } else {
-      const filteredRequests = initialRequests.filter((request) => {
-        const matchesSearch = request.number.includes(searchTerm)
-        const matchesStatus = !activeStatus || request.status === activeStatus
-        return matchesSearch && matchesStatus
+      getRequestsByUserId()
+      .then(response => {
+        console.log(response)
+        let queueCount = 1
+        const filteredRequests = response.filter((request) => {
+          request.pos = queueCount
+          queueCount++
+          const matchesSearch = request.id.includes(searchTerm)
+          const matchesStatus = !activeStatus || request.status === activeStatus
+          return matchesSearch && matchesStatus
+        })
+        setRequests(filteredRequests)
       })
-      setRequests(filteredRequests)
+      .catch(error => showErrorToast(error))
     }
   }, [searchTerm, activeStatus])
 
@@ -51,7 +52,7 @@ const StudentHomePage = () => {
             <input placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           </SearchInput>
           <StatusLegend>
-            {["ACEITO", "REJEITADO", "PENDENTE"].map((status) => (
+            {["APROVADO", "REJEITADO", "PENDENTE"].map((status) => (
               <StatusItem key={status} active={activeStatus === status} onClick={() => handleStatusClick(status)}>
                 <StatusDot status={status} />
                 <span>{status}</span>
@@ -64,18 +65,18 @@ const StudentHomePage = () => {
       <RequestsList>
         {requests.map((request) => (
           <RequestCard
-            key={request.number}
+            key={request.id}
             status={request.status}
-            onClick={() => console.log(`Clicked on request ${request.number}`)}
+            onClick={() => navigate(`/evaluation/${request.id}/visualization`)}
           >
             <RequestContent>
               <RequestInfo>
-                <div className="number">N. {request.number}</div>
+                <div className="number">N. {request.id}</div>
                 <div>MATRÍCULA: {request.registration}</div>
               </RequestInfo>
               <RequestStatus>
                 {request.pos && <div>POSIÇÃO: {request.pos}</div>}
-                <div>CH: {request.hours} HORAS</div>
+                <div>CH: {request.requestedHours} HORAS</div>
                 <div>STATUS: {request.status}</div>
               </RequestStatus>
             </RequestContent>
@@ -168,7 +169,7 @@ const StatusDot = styled.div`
   border-radius: 50%;
   background-color: ${(props) => {
     switch (props.status) {
-      case "ACEITO":
+      case "APROVADO":
         return "#2F855A"
       case "PENDENTE":
         return "#2B6CB0"
@@ -194,7 +195,7 @@ const RequestCard = styled.div`
   color: white;
   background-color: ${(props) => {
     switch (props.status) {
-      case "ACEITO":
+      case "APROVADO":
         return "#2F855A"
       case "PENDENTE":
         return "#2B6CB0"

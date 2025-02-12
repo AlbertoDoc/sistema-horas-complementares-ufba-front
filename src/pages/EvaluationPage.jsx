@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react"
 import styled from "styled-components"
 import { TextField, Paper } from "@mui/material"
-import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
 import CoordinatorTopBar from "../components/CoordinatorTopBar";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { isUserLogged } from "../utils/Helpers";
+import { getRequestById } from "../services/getRequestById";
+import { showErrorToast, showSuccessToast } from "../utils/Toasts";
+import { postEvaluation } from "../services/postEvaluation";
+import StudentTopBar from "../components/StudentTopBar";
 
 const mockRequestData = {
   studentName: "João Silva",
@@ -36,66 +39,72 @@ const mockRequestData = {
   ],
   studentComment:
     "Solicito a análise das horas complementares referentes à monitoria realizada na disciplina de Programação Web durante o semestre 2023.2.",
-  evaluations: [
-    {
-      id: "eval1",
-      comment: "Documentação completa e atividade pertinente à área.",
-      date: "2024-01-20",
-    },
-  ],
+  evaluation: "Documentação completa e atividade pertinente à área.",
 }
 
-export default function EvaluationPage() {
+export default function EvaluationPage({ isVisualization }) {
   const [requestData, setRequestData] = useState(mockRequestData)
-  const [newEvaluation, setNewEvaluation] = useState("")
-
-  const addEvaluation = () => {
-    if (!newEvaluation.trim()) return
-
-    const evaluation = {
-      id: `eval${Date.now()}`,
-      comment: newEvaluation,
-      date: new Date().toISOString().split("T")[0],
-    }
-
-    setRequestData((prev) => ({
-      ...prev,
-      evaluations: [...prev.evaluations, evaluation],
-    }))
-    setNewEvaluation("")
-  }
-
-  const deleteEvaluation = (id) => {
-    setRequestData((prev) => ({
-      ...prev,
-      evaluations: prev.evaluations.filter((evaluation) => evaluation.id !== id),
-    }))
-  }
+  const [evaluation, setEvaluation] = useState("")
+  const { requestId } = useParams();
+  const [request, setRequest] = useState({
+    activityStartDate: "",
+    activityEndDate: "",
+    submissionDate: "",
+    studentComment: "",
+    requestedHours: "",
+    name: "",
+    email: "",
+    activity: "",
+    subcategory: "",
+    category: ""
+  })
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!isUserLogged()) {
       navigate('/')
+    } else {
+      getRequestById(requestId)
+      .then(response => setRequest(response))
+      .catch(error => showErrorToast(error))
     }
   }, [])
 
+  function handleAcceptRequest() {
+    postEvaluation(requestId, true, evaluation, request.requestedHours)
+    .then(response => {
+      showSuccessToast("Avaliação submetida com sucesso!")
+      navigate("/home")
+    })
+    .then(error => showErrorToast(error))
+  }
+
+  function handleRejectRequest() {
+    postEvaluation(requestId, false, evaluation, request.requestedHours)
+    .then(response => {
+      showSuccessToast("Avaliação submetida com sucesso!")
+      navigate("/home")
+    })
+    .then(error => showErrorToast(error))
+  }
 
   return (
     <Container>
-      <CoordinatorTopBar />
+      {localStorage.getItem("role") === "student" ? <StudentTopBar/> : <CoordinatorTopBar /> }
       <Section>
         <Title>Dados do Pedido</Title>
         <Grid>
-          <TextField label="Nome do Aluno" value={requestData.studentName} fullWidth disabled />
-          <TextField label="Posição na Fila" value={requestData.queuePosition} fullWidth disabled />
-          <TextField label="Data Inicial da Atividade" value={requestData.activityStartDate} fullWidth disabled />
-          <TextField label="Email do Aluno" value={requestData.email} fullWidth disabled />
-          <TextField label="Categoria" value={requestData.category} fullWidth disabled />
-          <TextField label="Data Final da Atividade" value={requestData.activityEndDate} fullWidth disabled />
+          <TextField label="Nome do Aluno" value={request.name} fullWidth disabled />
+          <TextField label="Data Inicial da Atividade" value={request.activityStartDate} fullWidth disabled />
+          <TextField label="Email do Aluno" value={request.email} fullWidth disabled />
+          <TextField label="Categoria" value={request.category} fullWidth disabled />
+          <TextField label="Data Final da Atividade" value={request.activityEndDate} fullWidth disabled />
           <TextField label="Matrícula" value={requestData.registration} fullWidth disabled />
-          <TextField label="Subcategoria" value={requestData.subcategory} fullWidth disabled />
-          <TextField label="Data de Abertura" value={requestData.openingDate} fullWidth disabled />
+          <TextField label="Subcategoria" value={request.subcategory} fullWidth disabled />
+          <TextField label="Data de Abertura" value={request.submissionDate} fullWidth disabled />
+          <TextField label="Horas" value={request.requestedHours} fullWidth disabled />
+          <TextField label="Atividade" value={request.activity} fullWidth disabled />
         </Grid>
       </Section>
 
@@ -112,37 +121,30 @@ export default function EvaluationPage() {
       <Section>
         <CommentBox elevation={1}>
           <CommentTitle>Comentário do Aluno</CommentTitle>
-          <CommentText>{requestData.studentComment}</CommentText>
+          <CommentText>{request.studentComment ? request.studentComment : "Nenhum comentário adicionado."}</CommentText>
         </CommentBox>
       </Section>
 
+      {isVisualization == false ? 
+      <>
       <Section>
-        <Title>Avaliação</Title>
+          <Title>Avaliação</Title>
 
-        {requestData.evaluations.map((evaluation) => (
-          <EvaluationBox key={evaluation.id} elevation={1}>
-            <DeleteButton onClick={() => deleteEvaluation(evaluation.id)}>
-              <DeleteIcon size={18} />
-            </DeleteButton>
-            <CommentText>{evaluation.comment}</CommentText>
-            <EvaluationDate>{evaluation.date}</EvaluationDate>
-          </EvaluationBox>
-        ))}
+          <TextArea
+            placeholder="ADICIONE UM COMENTÁRIO AQUI..."
+            value={evaluation}
+            onChange={(e) => setEvaluation(e.target.value)}
+          />
+        </Section>
 
-        <TextArea
-          placeholder="ADICIONE UM COMENTÁRIO AQUI..."
-          value={newEvaluation}
-          onChange={(e) => setNewEvaluation(e.target.value)}
-        />
-        <Button variant="feedback" onClick={addEvaluation}>
-          ADICIONAR FEEDBACK
-        </Button>
-      </Section>
-
-      <ActionButtons>
-        <Button variant="reject">REJEITAR PEDIDO</Button>
-        <Button variant="accept">ACEITAR PEDIDO</Button>
-      </ActionButtons>
+        <ActionButtons>
+          <Button variant="reject" onClick={handleRejectRequest}>REJEITAR PEDIDO</Button>
+          <Button variant="accept" onClick={handleAcceptRequest}>ACEITAR PEDIDO</Button>
+        </ActionButtons>
+      </>
+      :
+      <></>
+      }
     </Container>
   )
 }
@@ -240,32 +242,6 @@ const CommentText = styled.p`
   color: #666;
   font-size: 14px;
   line-height: 1.5;
-`
-
-const EvaluationBox = styled(Paper)`
-  padding: 20px;
-  margin-bottom: 16px;
-  position: relative;
-`
-
-const EvaluationDate = styled.span`
-  font-size: 12px;
-  color: #666;
-`
-
-const DeleteButton = styled.button`
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  color: #ff3b30;
-  cursor: pointer;
-  padding: 5px;
-  
-  &:hover {
-    opacity: 0.8;
-  }
 `
 
 const TextArea = styled.textarea`
