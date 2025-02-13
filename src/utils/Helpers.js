@@ -18,9 +18,6 @@ export function processErrorResponse(response) {
 
   const { status, message, data } = response.data;
 
-  if (status !== "fail") {
-      return "No error to process.";
-  }
 
   let errorDetails = "";
   if (data && typeof data === "object") {

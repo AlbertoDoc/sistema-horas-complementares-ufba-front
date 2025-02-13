@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { processErrorResponse } from '../utils/Helpers';
 
-export function register(firstName, lastName, email, role, courseId, password, confirmPassword) {
+export function register(firstName, lastName, email, role, courseId, password, confirmPassword, enrollmentNumber) {
   return new Promise((resolve, reject) => {
     const reqConfig = {
       headers: { 'content-type': 'application/json' },
@@ -17,7 +17,8 @@ export function register(firstName, lastName, email, role, courseId, password, c
           role: role,
           courseId: courseId,
           password: password,
-          confirmPassword: confirmPassword
+          confirmPassword: confirmPassword,
+          enrollmentNumber: enrollmentNumber
         },
         reqConfig,
       )

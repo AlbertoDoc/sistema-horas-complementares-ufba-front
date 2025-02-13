@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { processErrorResponse } from '../utils/Helpers';
 
-export function registerHours(category, requestedHours, subcategory, activity, startDate, endDate, observations) {
+export function registerHours(category, requestedHours, subcategory, activity, startDate, endDate, observations, documents) {
   return new Promise((resolve, reject) => {
     const reqConfig = {
       headers: { 'content-type': 'application/json' },
@@ -19,7 +19,8 @@ export function registerHours(category, requestedHours, subcategory, activity, s
           submissionDate: new Date(),
           studentComment: observations,
           requestedHours: requestedHours,
-          userId: localStorage.getItem("userId")
+          userId: localStorage.getItem("userId"),
+          documents: documents
         },
         reqConfig,
       )

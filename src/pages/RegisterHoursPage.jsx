@@ -1,7 +1,6 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect } from "react"
 import styled from "styled-components"
 import { TextField, Select, MenuItem, FormControl, InputLabel, TextareaAutosize } from "@mui/material"
-import { CloudUpload, Close } from "@mui/icons-material"
 import StudentTopBar from "../components/StudentTopBar"
 import { progressData } from "../utils/mockProgressData"
 import { Category } from "./ProgressPage"
@@ -10,12 +9,10 @@ import { isUserLogged } from "../utils/Helpers"
 import { showErrorToast, showSuccessToast } from "../utils/Toasts"
 import { getBaremaByCourseId } from "../services/getBaremaByCourseId"
 import { registerHours } from "../services/registerHours"
-import { uploadDocuments } from "../services/uploadDocuments"
 
 export default function RegisterHoursPage() {
   const [error, setError] = useState("");
   const [categories, setCategories] = useState([])
-  const [files, setFiles] = useState([])
   const [formData, setFormData] = useState({
     category: "",
     subcategory: "",
@@ -24,28 +21,8 @@ export default function RegisterHoursPage() {
     startDate: "2025-01-01",
     endDate: "2025-01-01",
     observations: "",
+    documents: ""
   })
-
-  const fileInputRef = useRef()
-
-  const handleFileChange = (event) => {
-    const newFiles = Array.from(event.target.files)
-    setFiles((prev) => [...prev, ...newFiles])
-  }
-
-  const handleDrop = (e) => {
-    e.preventDefault()
-    const droppedFiles = Array.from(e.dataTransfer.files)
-    setFiles((prev) => [...prev, ...droppedFiles])
-  }
-
-  const handleDragOver = (e) => {
-    e.preventDefault()
-  }
-
-  const removeFile = (index) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index))
-  }
 
   const handleChange = (e) => {
     setFormData({
@@ -80,12 +57,10 @@ export default function RegisterHoursPage() {
   function handleSubmitButton(event) {
     event.preventDefault()
     console.log(formData)
-    console.log(files)
 
     if (validateSubmission()) {
-      registerHours(formData.category, formData.hours, formData.subcategory, formData.activity, formData.startDate, formData.endDate, formData.observations)
+      registerHours(formData.category, formData.hours, formData.subcategory, formData.activity, formData.startDate, formData.endDate, formData.observations, formData.documents)
       .then(response => {
-        //uploadDocuments(files)
         showSuccessToast("Pedido cadastrado com sucesso!")
         navigate("/home/student")
       })
@@ -111,11 +86,6 @@ export default function RegisterHoursPage() {
 
     if (formData.hours <= 0) {
       setError("CH deve ser maior ou igual a 1.")
-      return false
-    }
-
-    if (files.length === 0) {
-      setError("Insira pelo menos um comprovante.")
       return false
     }
 
@@ -224,24 +194,14 @@ export default function RegisterHoursPage() {
         />
 
         <Title>Comprovantes</Title>
-        <HiddenInput type="file" ref={fileInputRef} onChange={handleFileChange} multiple accept=".jpg,.jpeg,.png,.pdf" />
-
-        <UploadArea onDrop={handleDrop} onDragOver={handleDragOver} onClick={() => fileInputRef.current.click()}>
-          <CloudUpload style={{ fontSize: 48, color: "#4339F2", marginBottom: "1rem" }} />
-          <p>
-            Arraste e solte arquivos ou <span style={{ color: "#4339F2" }}>Navegue</span>
-          </p>
-          <small style={{ color: "#666" }}>Formatos aceitos: JPEG, PNG, PDF</small>
-        </UploadArea>
-
-        <FileList>
-          {files.map((file, index) => (
-            <FileItem key={index}>
-              {file.name}
-              <Close style={{ cursor: "pointer", color: "#ff4444" }} onClick={() => removeFile(index)} />
-            </FileItem>
-          ))}
-        </FileList>
+        <TextareaAutosize
+          minRows={3}
+          placeholder="Insira os links para download dos documentos"
+          style={{ width: "100%", padding: "8px", marginBottom: "2rem" }}
+          name="documents"
+          value={formData.documents}
+          onChange={handleChange}
+        />
 
         <SubmitButton onClick={handleSubmitButton}>SUBMETER PEDIDO</SubmitButton>
       </Container>
