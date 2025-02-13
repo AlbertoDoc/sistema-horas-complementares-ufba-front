@@ -127,7 +127,7 @@ export default function RegisterPage() {
       let splitName = name.split(' ')
       let firstName = splitName[0]
       let lastName = splitName.slice(1).join(" ");
-      register(firstName, lastName, email, selectedRole, selectedCourse, password, confirmPassword)
+      register(firstName, lastName, email, selectedRole, selectedCourse, password, confirmPassword, registrationNumber)
       .then(() => {
         navigate('/')
         showSuccessToast('Cadastro concluído com sucesso. Faça o login para entrar na plataforma.')

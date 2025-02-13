@@ -1,30 +1,20 @@
 import axios from 'axios';
 import { processErrorResponse } from '../utils/Helpers';
 
-export function register(firstName, lastName, email, role, courseId, password, confirmPassword, enrollmentNumber) {
+export function getRequestsByUserId() {
   return new Promise((resolve, reject) => {
     const reqConfig = {
       headers: { 'content-type': 'application/json' },
     };
 
     axios
-      .post(
-        "http://localhost:8000/api/v1/auth/signup",
-        {
-          firstName: firstName,
-          lastName: lastName,
-          email: email,
-          role: role,
-          courseId: courseId,
-          password: password,
-          confirmPassword: confirmPassword,
-          enrollmentNumber: enrollmentNumber
-        },
+      .get(
+        `http://localhost:8000/api/v1/request/${localStorage.getItem("userId")}/${localStorage.getItem("role")}`,
         reqConfig,
       )
       .then((response) => {
         console.log(response)
-        if (response.status === 201) {
+        if (response.status === 200) {
           resolve(response.data);
         }
       })

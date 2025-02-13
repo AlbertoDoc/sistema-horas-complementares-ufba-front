@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { processErrorResponse } from '../utils/Helpers';
 
-export function register(firstName, lastName, email, role, courseId, password, confirmPassword, enrollmentNumber) {
+export function registerHours(category, requestedHours, subcategory, activity, startDate, endDate, observations, documents) {
   return new Promise((resolve, reject) => {
     const reqConfig = {
       headers: { 'content-type': 'application/json' },
@@ -9,16 +9,18 @@ export function register(firstName, lastName, email, role, courseId, password, c
 
     axios
       .post(
-        "http://localhost:8000/api/v1/auth/signup",
+        "http://localhost:8000/api/v1/request/register",
         {
-          firstName: firstName,
-          lastName: lastName,
-          email: email,
-          role: role,
-          courseId: courseId,
-          password: password,
-          confirmPassword: confirmPassword,
-          enrollmentNumber: enrollmentNumber
+          categoryId: category,
+          subCategoryId: subcategory,
+          activityId: activity,
+          activityStartDate: startDate,
+          activityEndDate: endDate,
+          submissionDate: new Date(),
+          studentComment: observations,
+          requestedHours: requestedHours,
+          userId: localStorage.getItem("userId"),
+          documents: documents
         },
         reqConfig,
       )

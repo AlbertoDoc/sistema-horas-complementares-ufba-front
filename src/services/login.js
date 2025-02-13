@@ -24,6 +24,7 @@ export function login(email, password) {
           localStorage.setItem("role", response.data.data.role)
           localStorage.setItem("courseId", response.data.data.courseId)
           localStorage.setItem("firstName", response.data.data.firstName)
+          localStorage.setItem("userId", response.data.data.userId)
           resolve(response.data);
         }
       })
